@@ -188,6 +188,17 @@
           <strong>Badge:</strong> ${result.badge}
         </div>
       `;
+
+      setTimeout(() => {
+        const name = prompt("Enter your name for the leaderboard:");
+        if (name) {
+          document.getElementById("formName").value = name;
+          document.getElementById("formScore").value = result.hyScore;
+          document.getElementById("formBadge").value = result.badge;
+          document.getElementById("scoreForm").submit();
+        }
+      }, 500);
+
     }
   
 </script>

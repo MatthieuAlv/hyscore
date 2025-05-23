@@ -1,0 +1,174 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>HyScore Calculator</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 2rem;
+      background: #f4f4f4;
+    }
+    .container {
+      max-width: 600px;
+      margin: auto;
+      background: white;
+      padding: 2rem;
+      border-radius: 8px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+    input, select {
+      margin-bottom: 1rem;
+      padding: 0.5rem;
+      width: 100%;
+    }
+    button {
+      padding: 0.75rem 1.5rem;
+      background: black;
+      color: white;
+      border: none;
+      cursor: pointer;
+    }
+    .result {
+      margin-top: 2rem;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>HyScore Calculator</h1>
+    <div id="form-container">
+      <label>Age: <input type="number" id="age" /></label><br>
+      <label>Gender (M/F): 
+        <select id="gender">
+          <option value="M">M</option>
+          <option value="F">F</option>
+        </select>
+      </label><br>
+      <label>Bodyweight (kg): <input type="number" id="bodyweight" /></label><br>
+      <label>Bench Press (kg): <input type="number" id="bench" /></label><br>
+      <label>Squat (kg): <input type="number" id="squat" /></label><br>
+      <label>Deadlift (kg): <input type="number" id="deadlift" /></label><br>
+      <label>VO2 Max: <input type="number" id="vo2max" /></label><br>
+      <button onclick="calculate()">Calculate</button>
+    </div>
+    <div id="result-container"></div>
+  </div>
+  <script>
+    function calculateHyScore({ age, gender, bodyweight, bench, squat, deadlift, vo2max }) {
+      const bwKey = [52, 56, 60, 67, 75, 82, 90, 100, 110, 125, 145].reduce((prev, curr) =>
+        Math.abs(curr - bodyweight) < Math.abs(prev - bodyweight) ? curr : prev
+      );
+
+      const standards = {
+        bench: {
+          52: [38.1, 48.5, 59.0, 81.2, 100.7],
+          56: [41.3, 52.6, 64.4, 88.0, 109.8],
+          60: [44.5, 56.7, 69.4, 94.3, 117.9],
+          67: [49.4, 63.5, 78.2, 106.1, 132.0],
+          75: [54.0, 68.9, 86.2, 115.7, 144.7],
+          82: [58.1, 74.4, 91.2, 124.7, 155.6],
+          90: [61.2, 78.5, 96.6, 131.1, 164.2],
+          100: [64.4, 83.0, 102.1, 138.8, 172.8],
+          110: [67.6, 86.2, 104.3, 143.3, 179.2],
+          125: [70.7, 88.9, 108.4, 147.4, 184.7],
+          145: [72.6, 91.2, 110.7, 151.0, 188.2]
+        },
+        squat: {
+          52: [35.4, 65.3, 78.9, 108.9, 145.2],
+          56: [38.1, 70.3, 86.2, 117.5, 156.9],
+          60: [41.3, 76.2, 93.0, 126.1, 167.3],
+          67: [45.8, 85.3, 104.3, 142.0, 186.0],
+          75: [49.9, 92.5, 113.4, 155.1, 201.8],
+          82: [54.0, 99.8, 122.0, 166.4, 217.3],
+          90: [56.7, 105.2, 129.3, 175.5, 228.6],
+          100: [59.9, 110.7, 136.5, 185.5, 241.3],
+          110: [62.1, 115.7, 141.1, 191.8, 249.9],
+          125: [64.0, 118.3, 144.7, 197.3, 257.2],
+          145: [66.7, 121.1, 148.0, 201.8, 263.0]
+        },
+        deadlift: {
+          52: [44.0, 81.2, 92.5, 135.6, 175.5],
+          56: [47.6, 88.0, 100.7, 145.1, 187.8],
+          60: [51.3, 94.8, 108.4, 155.2, 198.6],
+          67: [57.2, 106.1, 122.0, 172.4, 218.7],
+          75: [62.1, 115.2, 132.9, 186.4, 235.0],
+          82: [67.1, 124.3, 142.9, 198.7, 248.6],
+          90: [70.8, 131.1, 151.0, 207.3, 257.2],
+          100: [74.4, 138.3, 159.2, 217.3, 266.0],
+          110: [78.0, 144.3, 164.8, 222.3, 270.4],
+          125: [79.8, 147.9, 169.5, 226.4, 273.1],
+          145: [81.6, 151.0, 172.8, 229.5, 275.8]
+        }
+      };
+
+      const getPercentile = (value, levels) => {
+        const percentiles = [20, 40, 60, 80, 95];
+        for (let i = levels.length - 1; i >= 0; i--) {
+          if (value >= levels[i]) return percentiles[i];
+        }
+        return 10;
+      };
+
+      const benchPct = getPercentile(bench, standards.bench[bwKey]);
+      const squatPct = getPercentile(squat, standards.squat[bwKey]);
+      const deadliftPct = getPercentile(deadlift, standards.deadlift[bwKey]);
+      const strengthAvg = (benchPct + squatPct + deadliftPct) / 3;
+
+      const vo2Data = {
+        "20-29": [[95, 55.4], [80, 51.1], [60, 45.4], [40, 41.7]],
+        "30-39": [[95, 54], [80, 48.3], [60, 44], [40, 40.5]],
+        "40-49": [[95, 52.5], [80, 46.4], [60, 42.4], [40, 38.5]],
+        "50-59": [[95, 48.9], [80, 43.4], [60, 39.2], [40, 35.6]],
+        "60-69": [[95, 45.7], [80, 39.5], [60, 35.5], [40, 32.3]],
+        "70-79": [[95, 42.1], [80, 36.7], [60, 32.3], [40, 29.4]]
+      };
+
+      const ageGroup = age < 30 ? "20-29" : age < 40 ? "30-39" : age < 50 ? "40-49" :
+                       age < 60 ? "50-59" : age < 70 ? "60-69" : "70-79";
+
+      let vo2Pct = 20;
+      for (let [pct, val] of vo2Data[ageGroup]) {
+        if (vo2max >= val) {
+          vo2Pct = pct;
+          break;
+        }
+      }
+
+      const hyScore = Math.round((strengthAvg + vo2Pct) / 2 * 10) / 10;
+      const badge = hyScore >= 95 ? "🏆 Elite" : hyScore >= 75 ? "🥇 Gold" : hyScore >= 50 ? "🥈 Silver" : "🥉 Bronze";
+
+      return {
+        strengthPercentile: strengthAvg,
+        endurancePercentile: vo2Pct,
+        hyScore,
+        badge
+      };
+    }
+
+    function calculate() {
+      const form = {
+        age: parseInt(document.getElementById("age").value),
+        gender: document.getElementById("gender").value,
+        bodyweight: parseFloat(document.getElementById("bodyweight").value),
+        bench: parseFloat(document.getElementById("bench").value),
+        squat: parseFloat(document.getElementById("squat").value),
+        deadlift: parseFloat(document.getElementById("deadlift").value),
+        vo2max: parseFloat(document.getElementById("vo2max").value)
+      };
+
+      const result = calculateHyScore(form);
+      document.getElementById("result-container").innerHTML = `
+        <div class="result">
+          <strong>Strength %:</strong> ${result.strengthPercentile}<br/>
+          <strong>Endurance %:</strong> ${result.endurancePercentile}<br/>
+          <strong>HyScore (out of 100):</strong> ${result.hyScore}<br/>
+          <strong>Badge:</strong> ${result.badge}
+        </div>
+      `;
+    }
+  </script>
+</body>
+</html>

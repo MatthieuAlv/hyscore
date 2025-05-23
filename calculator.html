@@ -161,6 +161,12 @@
       };
 
       const result = calculateHyScore(form);
+      
+      const name = prompt("Enter your name for the leaderboard:");
+      if (name && name.length > 1) {
+        submitScore(name, result.hyScore, result.badge);
+      }
+
       document.getElementById("result-container").innerHTML = `
         <div class="result">
           <strong>Strength %:</strong> ${result.strengthPercentile}<br/>
@@ -171,13 +177,27 @@
       `;
     }
   </script>
+
+<script>
+function submitScore(name, hyscore, badge) {
+  fetch('https://script.google.com/macros/s/AKfycbwfqMpwrNs3EFi3KTfwrBae65CBHck240dFezUz9TGDMH3DkkXWKn1es3bry2_2lcxrSw/exec', {
+    method: 'POST',
+    body: JSON.stringify({ name, hyscore, badge }),
+    headers: { 'Content-Type': 'application/json' }
+  })
+  .then(response => response.text())
+  .then(result => {
+    console.log('Submitted to leaderboard:', result);
+  });
+}
+</script>
+
 </body>
 </html>
 
 <footer style="background:#000;padding:1rem;text-align:center;margin-top:2rem;">
   <a href="index.html" style="color:white;margin:0 1rem;text-decoration:none;">Home</a>
   <a href="calculator.html" style="color:white;margin:0 1rem;text-decoration:none;">Calculator</a>
-  <a href="vo2max.html" style="color:white;margin:0 1rem;text-decoration:none;">VO2Max</a>
   <a href="about.html" style="color:white;margin:0 1rem;text-decoration:none;">About</a>
   <a href="leaderboard.html" style="color:white;margin:0 1rem;text-decoration:none;">Leaderboard</a>
 </footer>

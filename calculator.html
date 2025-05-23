@@ -161,46 +161,16 @@
       };
 
       const result = calculateHyScore(form);
-      
-      const name = prompt("Enter your name for the leaderboard:");
-      if (name && name.length > 1) {
-        submitScore(name, result.hyScore, result.badge);
-      }
-
-    
+      document.getElementById("result-container").innerHTML = `
         <div class="result">
           <strong>Strength %:</strong> ${result.strengthPercentile}<br/>
           <strong>Endurance %:</strong> ${result.endurancePercentile}<br/>
           <strong>HyScore (out of 100):</strong> ${result.hyScore}<br/>
           <strong>Badge:</strong> ${result.badge}
         </div>
-
+      `;
     }
-  
-</script>
-
-<script>
-function submitScore(name, hyscore, badge) {
-  fetch('https://script.google.com/macros/s/AKfycbwfqMpwrNs3EFi3KTfwrBae65CBHck240dFezUz9TGDMH3DkkXWKn1es3bry2_2lcxrSw/exec', {
-    method: 'POST',
-    body: JSON.stringify({ name, hyscore, badge }),
-    headers: { 'Content-Type': 'application/json' }
-  })
-  .then(response => response.text())
-  .then(result => {
-    console.log('Submitted to leaderboard:', result);
-  });
-}
-
-</script>
-
-
-<form id="scoreForm" action="https://script.google.com/macros/s/AKfycbwfqMpwrNs3EFi3KTfwrBae65CBHck240dFezUz9TGDMH3DkkXWKn1es3bry2_2lcxrSw/exec" method="POST" target="_blank" style="display:none;">
-  <input type="text" name="name" id="formName" />
-  <input type="text" name="hyscore" id="formScore" />
-  <input type="text" name="badge" id="formBadge" />
-</form>
-
+  </script>
 </body>
 </html>
 

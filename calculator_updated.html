@@ -1,0 +1,92 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>HyScore Calculator</title>
+  <style>
+    body { font-family: Arial, sans-serif; padding: 2rem; background: #f5f5f5; text-align: center; }
+    input, select, button { padding: 10px; margin: 10px; font-size: 1rem; }
+    .result { font-size: 1.25rem; margin-top: 1rem; }
+  </style>
+</head>
+<body>
+  <h1>💪 HyScore Calculator</h1>
+  <form id="scoreForm">
+    <input type="number" id="age" placeholder="Age" required /><br/>
+    <input type="number" id="weight" placeholder="Bodyweight (kg)" required /><br/>
+    <input type="number" id="bench" placeholder="Bench Press 1RM (kg)" required /><br/>
+    <input type="number" id="squat" placeholder="Squat 1RM (kg)" required /><br/>
+    <input type="number" id="deadlift" placeholder="Deadlift 1RM (kg)" required /><br/>
+
+    <label>
+      <input type="radio" name="enduranceSource" value="vo2" checked onclick="toggleEnduranceInput()"> VO₂ Max
+    </label>
+    <label>
+      <input type="radio" name="enduranceSource" value="percentile" onclick="toggleEnduranceInput()"> 5K Percentile
+    </label><br/>
+
+    <div id="vo2Input">
+      <input type="number" id="vo2" placeholder="VO₂ Max" />
+    </div>
+    <div id="percentileInput" style="display: none;">
+      <input type="number" id="percentile" placeholder="5K Percentile (0–100)" min="0" max="100" />
+    </div>
+
+    <button type="button" onclick="calculateScore()">Calculate</button>
+  </form>
+
+  <div id="result" class="result"></div>
+
+  <script>
+    function toggleEnduranceInput() {
+      const useVo2 = document.querySelector('input[name="enduranceSource"]:checked').value === "vo2";
+      document.getElementById("vo2Input").style.display = useVo2 ? "block" : "none";
+      document.getElementById("percentileInput").style.display = useVo2 ? "none" : "block";
+    }
+
+    function calculateScore() {
+      const age = parseInt(document.getElementById("age").value);
+      const bw = parseFloat(document.getElementById("weight").value);
+      const bench = parseFloat(document.getElementById("bench").value);
+      const squat = parseFloat(document.getElementById("squat").value);
+      const deadlift = parseFloat(document.getElementById("deadlift").value);
+
+      const liftMean = (bench + squat + deadlift) / 3;
+      const liftVar = ((bench - liftMean)**2 + (squat - liftMean)**2 + (deadlift - liftMean)**2) / 3;
+      const penalty = 1 - Math.min(liftVar / (liftMean**2), 0.3);
+
+      const relStrength = (bench + squat + deadlift) / bw * penalty;
+      let strengthZ = (relStrength - 3) / 0.7;
+      if (age > 30) strengthZ += (age - 30) * 0.015;
+      const strengthScore = Math.max(0, Math.min(100, Math.round(50 + strengthZ * 10)));
+
+      let enduranceScore = 0;
+      if (document.querySelector('input[name="enduranceSource"]:checked').value === "vo2") {
+        const vo2 = parseFloat(document.getElementById("vo2").value);
+        let enduranceZ = (vo2 - 40) / 10;
+        if (age > 30) enduranceZ += (age - 30) * 0.015;
+        enduranceScore = Math.max(0, Math.min(100, Math.round(50 + enduranceZ * 10)));
+      } else {
+        const percentile = parseFloat(document.getElementById("percentile").value);
+        enduranceScore = Math.max(0, Math.min(100, Math.round(percentile)));
+      }
+
+      const hybridScore = Math.round((strengthScore + enduranceScore) / 2);
+
+      let badge = "Bronze";
+      if (hybridScore >= 95) badge = "Elite";
+      else if (hybridScore >= 76) badge = "Gold";
+      else if (hybridScore >= 51) badge = "Silver";
+
+      document.getElementById("result").innerHTML = `
+        <strong>Strength Score:</strong> ${strengthScore}<br/>
+        <strong>Endurance Score:</strong> ${enduranceScore}<br/>
+        <strong>Hybrid Score:</strong> ${hybridScore}/100<br/>
+        <strong>Badge:</strong> ${badge}
+      `;
+    }
+  </script>
+</body>
+</html>

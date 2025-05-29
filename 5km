@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>5K Time Percentile Calculator | HyScore</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 2rem;
+      background: #f5f5f5;
+      text-align: center;
+    }
+    input, button {
+      padding: 10px;
+      margin: 10px;
+      font-size: 1rem;
+    }
+    .result {
+      font-size: 1.5rem;
+      margin-top: 1rem;
+      color: #333;
+    }
+  </style>
+</head>
+<body>
+  <h1>🏃‍♂️ 5K Time Percentile Calculator</h1>
+  <p>Enter your 5K finish time (in minutes):</p>
+  <input type="number" id="timeInput" step="0.1" min="15" max="60" />
+  <button onclick="calculatePercentile()">Calculate</button>
+
+  <div id="result" class="result"></div>
+
+  <script>
+    const lookupTable = [
+      { time: 15.0, percentile: 100 }, { time: 15.5, percentile: 99 }, { time: 16.0, percentile: 99 },
+      { time: 16.5, percentile: 98 }, { time: 17.0, percentile: 98 }, { time: 17.5, percentile: 97 },
+      { time: 18.0, percentile: 96 }, { time: 18.5, percentile: 95 }, { time: 19.0, percentile: 94 },
+      { time: 19.5, percentile: 93 }, { time: 20.0, percentile: 92 }, { time: 20.5, percentile: 91 },
+      { time: 21.0, percentile: 90 }, { time: 21.5, percentile: 88 }, { time: 22.0, percentile: 86 },
+      { time: 22.5, percentile: 84 }, { time: 23.0, percentile: 82 }, { time: 23.5, percentile: 80 },
+      { time: 24.0, percentile: 78 }, { time: 24.5, percentile: 75 }, { time: 25.0, percentile: 72 },
+      { time: 25.5, percentile: 69 }, { time: 26.0, percentile: 66 }, { time: 26.5, percentile: 63 },
+      { time: 27.0, percentile: 60 }, { time: 27.5, percentile: 57 }, { time: 28.0, percentile: 54 },
+      { time: 28.5, percentile: 51 }, { time: 29.0, percentile: 48 }, { time: 29.5, percentile: 45 },
+      { time: 30.0, percentile: 42 }, { time: 30.5, percentile: 39 }, { time: 31.0, percentile: 36 },
+      { time: 31.5, percentile: 33 }, { time: 32.0, percentile: 30 }, { time: 32.5, percentile: 27 },
+      { time: 33.0, percentile: 24 }, { time: 33.5, percentile: 21 }, { time: 34.0, percentile: 18 },
+      { time: 34.5, percentile: 15 }, { time: 35.0, percentile: 12 }, { time: 35.5, percentile: 10 },
+      { time: 36.0, percentile: 8 },  { time: 36.5, percentile: 6 },  { time: 37.0, percentile: 5 },
+      { time: 37.5, percentile: 4 },  { time: 38.0, percentile: 3 },  { time: 38.5, percentile: 2 },
+      { time: 39.0, percentile: 1 },  { time: 40.0, percentile: 1 }
+    ];
+
+    function calculatePercentile() {
+      const inputTime = parseFloat(document.getElementById("timeInput").value);
+      const rounded = Math.round(inputTime * 2) / 2;
+
+      const entry = lookupTable.find(item => item.time === rounded);
+
+      const result = document.getElementById("result");
+      if (entry) {
+        result.textContent = `Your estimated 5K running percentile is: ${entry.percentile}th percentile`;
+      } else {
+        result.textContent = "Please enter a time between 15 and 40 minutes.";
+      }
+    }
+  </script>
+</body>
+</html>
